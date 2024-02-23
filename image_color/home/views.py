@@ -6,8 +6,8 @@ from PIL import Image
 import numpy as np
 
 
-def index(request):
-    return render(request, 'index.html')
+# def index(request):
+#     return render(request, 'index.html')
 
 
 def colorize_image(request):
@@ -24,7 +24,7 @@ def colorize_image(request):
             img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
 
             # Load colorization model
-            model = load_model('model.h5')
+            model = load_model('model/model.h5')
 
             # Make prediction
             colored_image = model.predict(img_array)[0]
