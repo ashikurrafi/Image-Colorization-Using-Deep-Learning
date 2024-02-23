@@ -3,5 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='home'),
-    # path('colorize-image/', views.colorize, name='colorize_image'),
+    path('colorize-image/', views.colorize_image, name='colorize_image'),
 ]

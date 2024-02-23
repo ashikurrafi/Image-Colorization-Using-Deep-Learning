@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 ]
 
 EXTERNAL_APPS = [
-    # 'home',
+    'home',
     # 'home.apps.HomeConfig',
 ]
 INSTALLED_APPS += EXTERNAL_APPS

@@ -6,6 +6,10 @@ from PIL import Image
 import numpy as np
 
 
+def index(request):
+    return render(request, 'index.html')
+
+
 def colorize_image(request):
     if request.method == 'POST':
         image_file = request.FILES.get('image')
