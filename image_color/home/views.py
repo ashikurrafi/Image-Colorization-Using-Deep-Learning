@@ -1,45 +1,95 @@
-from django.shortcuts import render, redirect
-from .models import Image  # Replace with your model name
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
-from PIL import Image
+import os
 import numpy as np
+from django.shortcuts import render, redirect, HttpResponse
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from keras.models import load_model
+from PIL import Image
+
+import h5py
 
 
-# def index(request):
-#     return render(request, 'index.html')
+def inspect_hdf5(request):
+    # Define the path to the HDF5 file
+    model_path = os.path.join(settings.BASE_DIR, 'home', 'models', 'model.h5')
+
+    try:
+        # Open the HDF5 file in read-only mode
+        with h5py.File(model_path, 'r') as file:
+            # List all groups and datasets in the file
+            file_content = list(file.keys())
+
+            # Attempt to access a specific dataset
+            dataset_name = 'dataset_name'
+            dataset_content = None
+            if dataset_name in file:
+                dataset_content = file[dataset_name][()]
+            else:
+                dataset_content = f"Dataset '{dataset_name}' not found in the file."
+
+        # Render a template with the HDF5 file content
+        return render(request, 'inspect_hdf5.html', {'file_content': file_content, 'dataset_content': dataset_content})
+
+    except Exception as e:
+        # Handle errors, e.g., if the file cannot be opened
+        return HttpResponse(f"Error: {e}")
 
 
-def colorize_image(request):
-    if request.method == 'POST':
-        image_file = request.FILES.get('image')
-        if image_file:
-            # Load image using Pillow (PIL fork)
-            img = Image.open(image_file)
+def loading_model(model_path):
+    try:
+        model = load_model(model_path)
+        return model
+    except OSError as e:
+        print(f"OS error: {e}")
+        return None
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        return None
 
-            # Preprocess image for model input (resize, normalize, etc.)
-            img = img.resize((224, 224))  # Adjust based on your model's input size
-            img_array = np.array(img)
-            img_array = img_array / 255.0  # Normalize pixel values to [0, 1]
+
+def upload_image(request):
+    if request.method == 'POST' and request.FILES['image']:
+        try:
+            image_file = request.FILES['image']
+            fs = FileSystemStorage()
+            filename = fs.save(image_file.name, image_file)
+            uploaded_image_path = fs.path(filename)
+            return colorize_image(request, uploaded_image_path)
+        except Exception as e:
+            print(f"Error uploading image: {e}")
+            return render(request, 'colorizer/error.html', {'message': 'Error uploading image'})
+    else:
+        return render(request, 'colorizer/upload_form.html')
+
+
+def colorize_image(request, image_path):
+    try:
+        model_path = os.path.join(settings.MODEL_ROOT, 'model.h5')
+        model = loading_model(model_path)
+        if model:
+            # Load the uploaded image
+            img = Image.open(image_path)
+            img = img.resize((256, 256))  # Resize if necessary
+            img_array = np.array(img) / 255.0  # Normalize pixel values
             img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
 
-            # Load colorization model
-            model = load_model('model/model.h5')
+            # Colorize the image
+            colorized_img = model.predict(img_array)
 
-            # Make prediction
-            colored_image = model.predict(img_array)[0]
+            # Post-process the colorized image
+            colorized_img = np.squeeze(colorized_img, axis=0)  # Remove batch dimension
+            colorized_img = (colorized_img * 255).astype(np.uint8)  # Convert back to uint8
 
-            # Convert back to PIL Image and prepare for display
-            colored_image = np.squeeze(colored_image) * 255.0  # Denormalize
-            colored_image = colored_image.astype(np.uint8)
-            colored_img = Image.fromarray(colored_image)
+            # Save the colorized image
+            colorized_image = Image.fromarray(colorized_img)
+            fs = FileSystemStorage()
+            colorized_filename = fs.save('colorized_' + os.path.basename(image_path), colorized_image)
 
-            # Save colored image (optional)
-            colored_img.save('colored_image.jpg')
-
-            # Return success message and colored image URL
-            return render(request, 'success.html', {'colored_image_url': '/static/colored_image.jpg'})
+            # Return the colorized image path for display
+            colorized_image_url = fs.url(colorized_filename)
+            return render(request, 'colorizer/result.html', {'colorized_image_url': colorized_image_url})
         else:
-            return render(request, 'index.html', {'error': 'Please upload an image.'})
-    else:
-        return render(request, 'index.html')
+            return render(request, 'colorizer/error.html', {'message': 'Error loading model'})
+    except Exception as e:
+        print(f"Error colorizing image: {e}")
+        return render(request, 'colorizer/error.html', {'message': 'Error colorizing image'})
