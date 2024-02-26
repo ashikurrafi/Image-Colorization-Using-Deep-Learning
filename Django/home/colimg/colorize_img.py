@@ -3,10 +3,8 @@ import cv2
 import numpy as np
 from skimage.color import rgb2lab, lab2rgb
 from keras.models import model_from_json
-import matplotlib.pyplot as plt
 
-
-def colorize_image(image_path):
+def colorize_image(image_path, image_name):
     # Load the pre-trained model
     model_json_path = 'D:/8th SEM/IC_project/Image-Colorization-Using-Deep-Learning/image_color/home/colimg/models/model.json'
     model_weights_path = 'D:/8th SEM/IC_project/Image-Colorization-Using-Deep-Learning/image_color/home/colimg/models/model.h5'
@@ -15,6 +13,7 @@ def colorize_image(image_path):
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
     loaded_model.load_weights(model_weights_path)
     loaded_model.summary()
 
@@ -29,15 +28,9 @@ def colorize_image(image_path):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_resized = cv2.resize(img, (256, 256))
 
-    # Display the original image
-    plt.figure(figsize=(8, 4))
-    plt.subplot(1, 2, 1)
-    plt.imshow(img_resized)
-    plt.title('Original Image')
-
     # Preprocess the image for colorization
     colorize = np.array(img_resized, dtype=float)
-    colorize = rgb2lab(1.0 / 255 * colorize)[:, :, 0]
+    colorize = rgb2lab(1.0/255 * colorize)[:, :, 0]
     # Reshape with an extra dimension
     colorize = colorize.reshape(1, colorize.shape[0], colorize.shape[1], 1)
 
@@ -55,10 +48,8 @@ def colorize_image(image_path):
     resImage_uint8 = (resImage * 255).astype(np.uint8)
 
     # Save the colorized image
-    output_folder = 'D:/8th SEM/IC_project/Image-Colorization-Using-Deep-Learning/image_color/home/colimg/output'
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
-    output_image_path = os.path.join(output_folder, 'colorized_image.jpg')
+    output_folder = os.path.dirname(image_path)
+    output_image_name = f"colorized_{image_name}"
+    output_image_path = os.path.join(output_folder, output_image_name)
     cv2.imwrite(output_image_path, cv2.cvtColor(resImage_uint8, cv2.COLOR_RGB2BGR))
     print(f"Colorized image saved at: {output_image_path}")
