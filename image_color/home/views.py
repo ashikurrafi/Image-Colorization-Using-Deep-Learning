@@ -67,6 +67,7 @@ def inspect_hdf5(request):
 #     else:
 #         return render(request, 'colorizer/upload_form.html')
 
+
 def upload_image(request):
     if request.method == 'POST' and request.FILES['image']:
         try:
@@ -74,22 +75,29 @@ def upload_image(request):
             fs = FileSystemStorage()
             filename = fs.save(image_file.name, image_file)
             uploaded_image_path = fs.path(filename)
-            colorized_image = colorize_image(uploaded_image_path)
-            if colorized_image is not None:
-                output_folder = os.path.join(settings.MEDIA_ROOT, 'colorized_images')
-                if not os.path.exists(output_folder):
-                    os.makedirs(output_folder)
-                output_image_path = os.path.join(output_folder, 'colorized_image.jpg')
-                cv2.imwrite(output_image_path, cv2.cvtColor(colorized_image, cv2.COLOR_RGB2BGR))
-                colorized_image_url = fs.url(output_image_path)
-                return render(request, 'colorizer/result.html', {'colorized_image_url': colorized_image_url})
-            else:
-                return render(request, 'colorizer/error.html', {'message': 'Error colorizing image'})
+
+            # Get the image name
+            image_name = os.path.basename(uploaded_image_path)
+
+            # Colorize the uploaded image
+            colorize_image(uploaded_image_path, image_name)
+
+            # Provide the colorized image URL to the template for rendering
+            colorized_image_url = fs.url(f"colorized_{image_name}")
+            original_image_url = fs.url(filename)  # Get the URL of the original image
+
+            # Define the download filename
+            download_filename = f"colorized_{image_name}"
+
+            return render(request, 'colorizer/result.html',
+                          {'original_image_url': original_image_url, 'colorized_image_url': colorized_image_url,
+                           'download_filename': download_filename})
         except Exception as e:
             print(f"Error uploading image: {e}")
             return render(request, 'colorizer/error.html', {'message': 'Error uploading image'})
     else:
         return render(request, 'colorizer/upload_form.html')
+
 
 # def colorizing_image(request, image_path):
 #     try:
