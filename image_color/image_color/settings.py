@@ -124,7 +124,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # static files
 STATICFILES_DIRS = [
-    BASE_DIR, "static",
+    os.path.join(BASE_DIR, 'static'),
 ]
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR, 'img_color', 'static'),
@@ -141,7 +141,30 @@ MEDIA_URL = "/media/"
 #
 # # Define the path to the model file
 # MODEL_FILE_PATH = os.path.join(BASE_DIR, 'models', 'model.h5')
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Define the directory where the model file is located
+# MODEL_ROOT = os.path.join(BASE_DIR, 'home', 'models')
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Define paths
+# MODEL_ROOT = os.path.join(BASE_DIR, 'home', 'colimg', 'models')
+# INPUT_IMAGE_ROOT = os.path.join(BASE_DIR, 'home', 'colimg', 'input')
+# OUTPUT_IMAGE_ROOT = os.path.join(BASE_DIR, 'home', 'colimg', 'output')
+
+# Define the directories for image, model JSON, and model weights
+# IMAGE_DIR = os.path.join(BASE_DIR, 'media', 'uploaded_images')
+# MODEL_DIR = os.path.join(BASE_DIR, 'home', 'models')
+#
+# # Define the paths for image, model JSON, and model weights
+# IMAGE_PATH = os.path.join(IMAGE_DIR, 'uploaded_image.jpg')
+# MODEL_JSON_PATH = os.path.join(MODEL_DIR, 'model.json')
+# MODEL_WEIGHTS_PATH = os.path.join(MODEL_DIR, 'model.h5')
+#
+# # Define the output folder for colorized images
+# COLORIZED_IMAGES_DIR = os.path.join(BASE_DIR, 'media', 'colorized_images')
+
+# Define the MODEL_ROOT directory
 MODEL_ROOT = os.path.join(BASE_DIR, 'home', 'models')
