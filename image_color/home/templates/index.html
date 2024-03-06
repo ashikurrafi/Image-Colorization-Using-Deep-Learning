@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+    <style>
+
+        button{
+        background-color:red;
+        }
+    </style>>
+</head>
+<body>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="image" accept="image/*">
+    <button type="submit">Colorize Image</button>
+</form>
+
+</body>
+</html>
