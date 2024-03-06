@@ -15,6 +15,10 @@ from colorize_img import colorize_image
 import h5py
 
 
+def index(request):
+    return render(request, 'base/base.html')
+
+
 def inspect_hdf5(request):
     # Define the path to the HDF5 file
     model_path = os.path.join(settings.BASE_DIR, 'home', 'models', 'model.h5')
