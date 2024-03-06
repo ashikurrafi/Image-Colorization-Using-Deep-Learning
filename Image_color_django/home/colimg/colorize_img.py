@@ -4,10 +4,11 @@ import numpy as np
 from skimage.color import rgb2lab, lab2rgb
 from keras.models import model_from_json
 
+
 def colorize_image(image_path, image_name):
     # Load the pre-trained model
-    model_json_path = 'D:/8th SEM/IC_project/Image-Colorization-Using-Deep-Learning/image_color/home/colimg/models/model.json'
-    model_weights_path = 'D:/8th SEM/IC_project/Image-Colorization-Using-Deep-Learning/image_color/home/colimg/models/model.h5'
+    model_json_path = 'Image_color_django/home/colimg/models/model.json'
+    model_weights_path = 'Image_color_django/home/colimg/models/model.h5'
 
     json_file = open(model_json_path, 'r')
     loaded_model_json = json_file.read()
@@ -51,5 +52,6 @@ def colorize_image(image_path, image_name):
     output_folder = os.path.dirname(image_path)
     output_image_name = f"colorized_{image_name}"
     output_image_path = os.path.join(output_folder, output_image_name)
-    cv2.imwrite(output_image_path, cv2.cvtColor(resImage_uint8, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(output_image_path, cv2.cvtColor(
+        resImage_uint8, cv2.COLOR_RGB2BGR))
     print(f"Colorized image saved at: {output_image_path}")

@@ -7,8 +7,8 @@ Currently we are working on CNN to colorize grayscale images.
 # File strecture:
 
 Dataset
----- Training_Image
----- Testing_Image
+Training_Image
+Testing_Image
 
 Image_color_django
 
